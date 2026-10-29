@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sure Shot Assistant</title>
+<link rel="icon" href="/ssl-logo.jpg">
+<style>
+  :root{--bg:#0b1220;--panel:#121b2e;--panel2:#18233b;--line:#25324f;--text:#e8eefc;--muted:#8fa0c2;--accent:#2f7bff;--accent2:#1d5fd6;--good:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --QB:#e05d5d;--RB:#2bb673;--WR:#3b8cff;--TE:#f0a030;--K:#a07de0;--DST:#7a8aa8;--FLEX:#4b5d82}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+  button{font:inherit;cursor:pointer;border:0;border-radius:8px}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #9cc0ff;outline-offset:2px}
+  a{color:#9cc0ff}
+  input,select{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:linear-gradient(90deg,#0f2a63,#123a8c);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;letter-spacing:.3px}
+  header h1 small{display:block;font-weight:400;color:#b9c8ee;font-size:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:46px;width:auto;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.35);background:#fff}
+  nav{flex:1;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  nav button{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);color:#e8eefc;padding:7px 14px;border-radius:999px}
+  nav button.on{background:#fff;color:#0f2a63;font-weight:700;border-color:#fff}
+  .me{display:flex;gap:8px;align-items:center}
+  .me .name{font-weight:600}
+  .link{background:none;color:#b9c8ee;text-decoration:underline;padding:0}
+  main{display:grid;grid-template-columns:minmax(380px,1.35fr) 1fr;gap:16px;padding:16px 20px;align-items:start}
+  main.one{grid-template-columns:1fr}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+  .card h2{font-size:14px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .pad{padding:12px 14px}
+  .tools{display:flex;gap:8px;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid var(--line);align-items:center}
+  .chip{background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .scroll{overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+  th{background:var(--panel);color:var(--muted);font-weight:600;font-size:12px}
+  td.num,th.num{text-align:right}
+  td.wrap{white-space:normal;min-width:160px}
+  tr.click{cursor:pointer} tr.click:hover td{background:var(--panel2)}
+  tr.sub td{background:#0e1628;padding:0}
+  .pos{display:inline-block;min-width:34px;text-align:center;font-size:11px;font-weight:700;padding:2px 5px;border-radius:5px;color:#fff}
+  .btn{background:var(--accent);color:#fff;padding:7px 13px;display:inline-block;text-decoration:none;border-radius:8px}
+  .btn:hover{background:var(--accent2)}
+  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+  .btn.danger{background:var(--bad)}
+  .btn[disabled]{background:#2a3657;color:#6f7fa3;cursor:not-allowed}
+  .pill{background:var(--panel2);border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:12px}
+  .muted{color:var(--muted)}
+  .good{color:#86efac} .warnc{color:#fcd34d} .badc{color:#fca5a5}
+  .move{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .move .delta{font-weight:800;color:#86efac;font-size:16px;min-width:56px;text-align:right}
+  .move b{font-size:15px}
+  .flag{padding:9px 14px;border-bottom:1px solid var(--line);border-left:3px solid var(--line)}
+  .flag.bad{border-left-color:var(--bad)} .flag.warn{border-left-color:var(--warn)} .flag.info{border-left-color:var(--accent)}
+  .hero{padding:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;border-bottom:1px solid var(--line)}
+  .hero .big{font-size:30px;font-weight:800;letter-spacing:-.5px}
+  .hero .lbl{color:var(--muted);font-size:12px;display:block}
+  .tag{font-size:11px;padding:1px 6px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);margin-left:6px}
+  .tag.warn{color:#fcd34d;border-color:#6b5317} .tag.bad{color:#fca5a5;border-color:#7a2433}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:700px){.vs{grid-template-columns:1fr}}
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  .empty b{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+  .overlay{position:fixed;inset:0;background:rgba(3,7,18,.82);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+  .modal h3{margin:0 0 4px;font-size:20px}
+  .modal p{color:var(--muted);margin:0 0 16px}
+  .modal .mlogo{display:block;height:64px;margin:0 0 12px;border-radius:8px;background:#fff}
+  .teams{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media (max-width:480px){.teams{grid-template-columns:1fr}}
+  .teams button{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;text-align:left}
+  .teams button:hover{border-color:var(--accent)}
+  .teams button[disabled]{opacity:.45;cursor:not-allowed}
+  .teams button span{display:block;color:var(--muted);font-size:12px}
+  .pinrow{display:flex;gap:8px;margin-top:6px}
+  .pinrow input{flex:1;font-size:22px;letter-spacing:8px;text-align:center}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1f2b47;border:1px solid var(--line);padding:10px 16px;border-radius:10px;z-index:20;display:none;max-width:90vw}
+  .toast.err{background:#4a1620;border-color:#7a2433}
+  .bm{display:inline-block;background:linear-gradient(90deg,#0f2a63,#123a8c);color:#fff;font-weight:700;padding:10px 18px;border-radius:999px;text-decoration:none;border:1px solid rgba(255,255,255,.25);cursor:grab}
+  ol.steps{margin:0;padding:0 14px 0 34px} ol.steps li{padding:6px 0;line-height:1.45}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px}
+  @media (max-width:600px){.hs{display:none} .me .muted{display:none}}
+  .wu{padding:12px 14px;line-height:1.5} .wu p{margin:0 0 8px} .wu ul{margin:0 0 10px;padding-left:20px} .wu li{margin:3px 0}
+  .bridge{max-width:440px;margin:30px auto;padding:0 16px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="overlay" id="login" style="display:none"><div class="modal" id="loginBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// CBS page paths. The player page is a standard CBS URL; confirm the lineup path once on the live site.
+const CBS = {
+  lineup: (host, team) => `https://${host}/teams/lineup/${team}`,
+  player: (host, id) => `https://${host}/players/playerpage/${id}`,
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = { get(k){ try{return localStorage.getItem(k)}catch(e){return null} }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v) }catch(e){} } };
+const BRIDGE = new URLSearchParams(location.search).has('bridge');
+let ST = null, D = null, tok = store.get('tok'), adm = store.get('adm');
+let who = JSON.parse(store.get('who') || 'null');
+let tab = (location.hash.slice(1) || 'lineup');
+let posFilter = 'ALL', faMode = 'adds';
+const TABS = [['lineup','My lineup'],['waivers','Waivers'],['matchup','Matchup'],['league','League'],['connect','Connect CBS'],['commish','Commissioner']];
+
+function toast(msg, err){ const t=$('toast'); t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', 4000); }
+async function api(url, body, as){
+  const t = as === 'admin' ? adm : as === 'any' ? (tok || adm) : tok;
+  const r = await fetch(url, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', ...(t ? { Authorization: 'Bearer ' + t } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && as !== 'admin' && t === tok && tok) { tok = null; who = null; store.set('tok', null); store.set('who', null); }
+  if (!r.ok) { const e = new Error(j.error || 'Request failed'); e.status = r.status; throw e; }
+  return j;
+}
+const ago = ts => { if (!ts) return 'never'; const m = Math.round((Date.now()-ts)/60000); return m < 1 ? 'just now' : m < 60 ? m+' min ago' : m < 1440 ? Math.round(m/60)+' h ago' : Math.round(m/1440)+' d ago'; };
+const pos = p => `<span class="pos" style="background:var(--${esc(p)},#4b5d82)">${esc(p)}</span>`;
+const f1 = x => x == null ? '–' : (+x).toFixed(1);
+const plink = (p, label) => `<a href="${CBS.player(ST.host, p.id)}" target="_blank" rel="noopener">${label || 'CBS'}</a>`;
+
+// ---------------- login ----------------
+function showLogin(step, team){
+  const box = $('loginBox'); $('login').style.display = 'flex';
+  if (step === 'pin') {
+    box.innerHTML = `<img class="mlogo" src="/ssl-logo.jpg" alt="Sure Shot League" onerror="this.remove()">
+      <h3>${esc(team.name)}</h3><p>Enter your team PIN.</p>
+      <div class="pinrow"><input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" aria-label="Team PIN"><button class="btn" id="go">Log in</button></div>
+      <p style="margin:14px 0 0"><button class="link" id="back">Pick a different team</button></p>`;
+    const go = async () => { try { const r = await api('/api/login', { teamId: team.id, pin: $('pin').value }); tok = r.token; who = r.team; store.set('tok', tok); store.set('who', JSON.stringify(who)); $('login').style.display='none'; afterLogin(); } catch(e){ toast(e.message, true); $('pin').value=''; $('pin').focus(); } };
+    $('go').onclick = go; $('pin').onkeydown = e => { if (e.key === 'Enter') go(); }; $('pin').focus();
+    $('back').onclick = () => showLogin('team');
+    return;
+  }
+  if (step === 'admin') {
+    box.innerHTML = `<h3>Commissioner</h3><p>Enter the commissioner password.</p>
+      <div class="pinrow"><input id="apw" type="password" aria-label="Commissioner password" style="letter-spacing:normal;font-size:16px"><button class="btn" id="go">Unlock</button></div>
+      <p style="margin:14px 0 0"><button class="link" id="back">Back</button></p>`;
+    const go = async () => { try { const r = await api('/api/admin/login', { password: $('apw').value }); adm = r.token; store.set('adm', adm); $('login').style.display='none'; toast('Commissioner tools unlocked'); afterLogin(); } catch(e){ toast(e.message, true); } };
+    $('go').onclick = go; $('apw').onkeydown = e => { if (e.key === 'Enter') go(); }; $('apw').focus();
+    $('back').onclick = () => showLogin('team');
+    return;
+  }
+  const teams = ST.teams || [];
+  box.innerHTML = `<img class="mlogo" src="/ssl-logo.jpg" alt="Sure Shot League" onerror="this.remove()">
+    <h3>Which team is yours?</h3>
+    ${teams.length ? `<p>Pick your team, then enter your PIN.</p><div class="teams">${teams.map(t => `<button data-t="${esc(t.id)}" ${t.hasPin?'':'disabled'}>${esc(t.name)}<span>${esc(t.owner || '')}${t.hasPin ? '' : ' · no PIN yet'}</span></button>`).join('')}</div>`
+      : `<p>No league data yet. The commissioner connects CBS first, then sets a PIN for each team.</p>`}
+    <p style="margin:16px 0 0;display:flex;gap:16px;flex-wrap:wrap">${BRIDGE ? '' : '<button class="link" id="close">Just looking</button>'}<button class="link" id="cm">I’m the commissioner</button></p>`;
+  box.querySelectorAll('button[data-t]').forEach(b => b.onclick = () => showLogin('pin', teams.find(t => t.id === b.dataset.t)));
+  if ($('close')) $('close').onclick = () => { $('login').style.display = 'none'; };
+  $('cm').onclick = () => showLogin('admin');
+}
+
+// ---------------- bridge window (opened by the bookmarklet on CBS) ----------------
+let payload = null, payloadOrigin = null, uploaded = false;
+function bridgeSay(h){ $('bstatus').innerHTML = h; }
+async function bridgeUpload(){
+  if (!payload || uploaded) return;
+  if (!tok && !adm) { bridgeSay('Log in to finish the sync.'); showLogin('team'); return; }
+  uploaded = true;
+  bridgeSay('Saving CBS data…');
+  let result;
+  try {
+    const r = await api('/api/sync', { live: payload.live, fa: payload.fa, week: payload.week, host: payload.host }, 'any');
+    result = { type: 'ssl-result', ok: true, week: r.week, faPositions: r.faPositions };
+    let plan = null;
+    if (tok) { try { plan = await api('/api/plan'); } catch(e){} }
+    result.plan = plan;
+    ST = await api('/api/status', null, 'any');
+    bridgeSay(`<div class="good" style="font-weight:700;font-size:16px">Synced${r.week ? ' week ' + r.week : ''}</div>
+      <p class="muted">${r.live ? r.teams + ' teams updated.' : 'Rosters unchanged.'} ${r.faPositions.length ? 'Free agents: ' + r.faPositions.join(', ') + '.' : ''}</p>
+      ${plan ? `<p>${plan.moves.length ? `${plan.moves.length} lineup change${plan.moves.length>1?'s':''} for ${esc(plan.team.name)} are highlighted on the CBS page.` : (plan.known ? 'Your lineup is already optimal.' : '')}</p>` : ''}
+      <p class="muted">Switch back to CBS, or open the full app here.</p>
+      <a class="btn" href="/">Open the app</a>`);
+  } catch (e) {
+    uploaded = false;
+    result = { type: 'ssl-result', ok: false, error: e.message };
+    bridgeSay(`<div class="badc">${esc(e.message)}</div>`);
+  }
+  try { window.opener && window.opener.postMessage(result, payloadOrigin); } catch(e){}
+}
+function afterLogin(){ if (BRIDGE) bridgeUpload(); else { load(); } }
+
+async function startBridge(){
+  $('app').innerHTML = `<div class="bridge"><div class="card"><div class="pad" style="display:flex;gap:12px;align-items:center;background:linear-gradient(90deg,#0f2a63,#123a8c)">
+    <img src="/ssl-logo.jpg" alt="" style="height:40px;border-radius:6px;background:#fff" onerror="this.remove()"><b>Sync from CBS</b></div>
+    <div class="pad" id="bstatus">Waiting for CBS…</div></div></div>`;
+  try { ST = await api('/api/status', null, 'any'); } catch(e){ ST = { teams: [] }; }
+  if (!window.opener) { bridgeSay('Open this window from the SSL Assistant bookmarklet on your CBS league page.'); return; }
+  window.addEventListener('message', e => {
+    if (e.source !== window.opener || !/(^|\.)cbssports\.com$/.test(new URL(e.origin).hostname)) return;
+    if (e.data && e.data.type === 'ssl-sync' && !payload) { payload = e.data; payloadOrigin = e.origin; bridgeUpload(); }
+  });
+  const ping = setInterval(() => { if (payload) return clearInterval(ping); try { window.opener.postMessage({ type: 'ssl-ready' }, '*'); } catch(e){} }, 400);
+}
+
+// ---------------- main app ----------------
+function shell(){
+  const sub = ST.syncedAt ? `Week ${ST.week ?? '?'} · CBS data from ${ago(ST.syncedAt)}${ST.syncedBy ? ' (' + esc(ST.syncedBy) + ')' : ''}` : 'Not connected to CBS yet';
+  $('app').innerHTML = `<header>
+    <div class="brand"><img src="/ssl-logo.jpg" alt="Sure Shot League" onerror="this.remove()"><h1>Sure Shot Assistant<small>${sub}</small></h1></div>
+    <nav id="tabs">${TABS.map(([k,l]) => `<button data-k="${k}" class="${k===tab?'on':''}">${l}</button>`).join('')}</nav>
+    <div class="me">${who ? `<span class="muted">Signed in as</span> <span class="name">${esc(who.name)}</span> <button class="link" id="out">log out</button>` : `<button class="btn ghost" id="in">Log in</button>`}</div>
+  </header><main id="view"></main>`;
+  $('tabs').querySelectorAll('button').forEach(b => b.onclick = () => { tab = b.dataset.k; location.hash = tab; shell(); view(); });
+  if ($('out')) $('out').onclick = () => { tok = null; who = null; store.set('tok', null); store.set('who', null); D = null; shell(); view(); };
+  if ($('in')) $('in').onclick = () => showLogin('team');
+}
+
+function needLogin(msg){
+  $('view').className = 'one';
+  $('view').innerHTML = `<section class="card"><div class="empty"><b>${msg || 'Log in to see your team.'}</b>Every owner has a team PIN from the commissioner.<div style="margin-top:14px"><button class="btn" id="li">Log in</button></div></div></section>`;
+  $('li').onclick = () => showLogin('team');
+}
+function noData(){
+  $('view').className = 'one';
+  $('view').innerHTML = `<section class="card"><div class="empty"><b>No CBS data yet</b>Run the SSL Assistant bookmarklet on your league’s Live Scoring page to load rosters and projections.<div style="margin-top:14px"><button class="btn" id="cn">Set up the bookmarklet</button></div></div></section>`;
+  $('cn').onclick = () => { tab = 'connect'; location.hash = tab; shell(); view(); };
+}
+
+async function getMe(){
+  if (!tok) return null;
+  if (!D) D = await api('/api/me');
+  return D;
+}
+
+async function view(){
+  const v = $('view');
+  v.className = ''; v.innerHTML = '<div class="empty">Loading…</div>';
+  try {
+    if (tab === 'connect') return viewConnect();
+    if (tab === 'commish') return viewCommish();
+    if (!ST.syncedAt) return noData();
+    if (tab === 'league') return viewLeague();
+    if (!tok) return needLogin();
+    const d = await getMe();
+    if (tab === 'lineup') return viewLineup(d);
+    if (tab === 'waivers') return viewWaivers(d);
+    if (tab === 'matchup') return viewMatchup(d);
+  } catch (e) {
+    if (e.status === 401) return needLogin('Your session ended. Log in again.');
+    if (e.status === 409) return noData();
+    v.className = 'one'; v.innerHTML = `<section class="card"><div class="empty"><b>Couldn’t load this view</b>${esc(e.message)}</div></section>`;
+  }
+}
+
+function playerCell(p){
+  const tags = [];
+  if (p.why && p.why.length) p.why.forEach(w => tags.push(`<span class="tag ${/Out|Bye|Doubtful/.test(w)?'bad':'warn'}" title="${esc(p.injNote||'')}">${esc(w)}</span>`));
+  if (p.early) tags.push(`<span class="tag">${esc(p.game.day)}</span>`);
+  return `<b>${esc(p.name)}</b>${tags.join('')}`;
+}
+const gameCell = p => p.game ? `${p.game.home ? 'vs' : '@'} ${esc(p.game.opp)}${p.oprk ? ` <span class="muted" title="Opponent rank vs ${esc(p.pos)}: 1 is toughest, 32 softest">#${p.oprk}</span>` : ''}` : '<span class="muted">–</span>';
+
+function lineupTable(slots){
+  return `<div class="scroll"><table><thead><tr><th>Slot</th><th>Player</th><th class="hs">Tm</th><th>Game</th><th class="num hs">CBS</th><th class="num">Adj</th></tr></thead><tbody>
+    ${slots.map(s => s.player ? `<tr><td>${pos(s.slot)}</td><td>${playerCell(s.player)} <span class="muted">${s.slot==='FLEX'?esc(s.player.pos):''}</span></td><td class="hs">${esc(s.player.pro)}</td><td>${gameCell(s.player)}</td><td class="num muted hs">${f1(s.player.proj)}</td><td class="num"><b>${f1(s.player.adj)}</b></td></tr>`
+      : `<tr><td>${pos(s.slot)}</td><td colspan="5" class="badc">Empty: no eligible player</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+function md(t){
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n');
+  let h = '', inList = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*[-•*]\s+(.*)/);
+    if (m) { if (!inList) { h += '<ul>'; inList = true; } h += `<li>${m[1]}</li>`; continue; }
+    if (inList) { h += '</ul>'; inList = false; }
+    if (l.trim()) h += `<p>${l.replace(/^#+\s*/, '')}</p>`;
+  }
+  return h + (inList ? '</ul>' : '');
+}
+async function loadWriteup(){
+  const el = $('wu'); if (!el) return;
+  try {
+    const r = await api('/api/writeup');
+    const w = r.writeup;
+    el.innerHTML = (w ? `<div class="wu">${md(w.text)}</div><div class="pad muted" style="font-size:12px;border-top:1px solid var(--line)">Written ${ago(w.at)}${r.stale ? ' from older CBS data.' : '.'} ${r.stale ? '<button class="btn" id="wuGo" style="margin-left:6px">Rewrite with new data</button>' : ''}</div>`
+      : `<div class="pad">Get a plain-English review of your lineup, waiver moves and matchup. <div style="margin-top:10px"><button class="btn" id="wuGo">Write my review</button></div></div>`);
+    if ($('wuGo')) $('wuGo').onclick = genWriteup;
+  } catch (e) { el.innerHTML = `<div class="pad muted">${esc(e.message)}</div>`; }
+}
+async function genWriteup(){
+  const el = $('wu'); el.innerHTML = '<div class="pad muted">Writing your review… this takes about 15 seconds.</div>';
+  try { await api('/api/writeup', {}); } catch (e) { toast(e.message, true); }
+  loadWriteup();
+}
+
+function viewLineup(d){
+  const v = $('view');
+  const gain = d.currentKnown ? Math.round((d.optimalTotal - d.currentTotal) * 10) / 10 : null;
+  const movesHtml = d.moves == null
+    ? `<div class="pad muted">Couldn’t tell which players are set as starters on CBS. The optimal lineup is below.</div>`
+    : d.moves.length === 0 ? `<div class="pad"><b class="good">Your lineup is already optimal.</b></div>`
+    : d.moves.map(m => `<div class="move"><div class="delta">+${f1(m.delta)}</div><div>Start <b>${esc(m.start.name)}</b> ${pos(m.start.pos)}${m.bench ? ` over <b>${esc(m.bench.name)}</b> ${pos(m.bench.pos)}` : ''}<div class="muted">${esc(m.reason)}</div></div></div>`).join('');
+  v.innerHTML = `<div class="stack">
+    <section class="card">
+      <h2><span>${esc(d.team.name)}: week ${d.week ?? '?'} lineup</span><a class="btn" href="${CBS.lineup(ST.host, d.team.id)}" target="_blank" rel="noopener">Set lineup on CBS</a></h2>
+      <div class="hero">
+        <div><span class="lbl">Optimal lineup</span><span class="big">${f1(d.optimalTotal)}</span></div>
+        ${d.currentKnown ? `<div><span class="lbl">As set on CBS</span><span class="big" style="color:var(--muted)">${f1(d.currentTotal)}</span></div>` : ''}
+        ${gain ? `<div><span class="lbl">Points on the table</span><span class="big good">+${f1(gain)}</span></div>` : ''}
+      </div>
+      ${movesHtml}
+      ${lineupTable(d.lineup)}
+      <div class="pad muted" style="font-size:12px">Adj is CBS’s projection (already in league scoring) after injury, bye and defense-environment adjustments. To make changes: open CBS, tap the SSL Assistant bookmarklet to highlight them, then press CBS’s Submit.</div>
+    </section></div>
+  <div class="stack">
+    ${ST.ai ? `<section class="card"><h2>Weekly write-up <span class="muted" style="font-weight:400">by Claude</span></h2><div id="wu"><div class="pad muted">Loading…</div></div></section>` : ''}
+    ${d.flags.length ? `<section class="card"><h2>Risk flags</h2>${d.flags.map(f => `<div class="flag ${f.level}">${esc(f.text)}</div>`).join('')}</section>` : ''}
+    ${d.closeCalls.length ? `<section class="card"><h2>Coin flips</h2>${d.closeCalls.map(c => `<div class="flag info"><b>${esc(c.starter.name)}</b> vs <b>${esc(c.alt.name)}</b> at ${c.slot}: ${f1(c.diff)} pts apart. ${c.slot==='TE'||c.alt.pos==='TE'?'The TE yardage bonus can swing this. ':''}Late injury news breaks the tie.</div>`).join('')}</section>` : ''}
+    ${d.opponent ? `<section class="card"><h2>This week</h2><div class="pad">You <b>${f1(d.optimalTotal)}</b> vs ${esc(d.opponent.name)} <b>${f1(d.opponent.total)}</b>. ${d.opponent.underdog ? '<span class="warnc">You’re the underdog, so lean toward higher-ceiling players in close calls.</span>' : d.opponent.favorite ? '<span class="good">You’re favored, so safer floors are fine in close calls.</span>' : 'Close matchup.'}</div></section>` : ''}
+    <section class="card"><h2>Bench</h2><div class="scroll"><table><thead><tr><th>Player</th><th>Pos</th><th>Game</th><th class="num">Adj</th></tr></thead><tbody>
+      ${d.bench.map(p => `<tr><td>${playerCell(p)}</td><td>${pos(p.pos)}</td><td>${gameCell(p)}</td><td class="num">${f1(p.adj)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Empty bench</td></tr>'}
+    </tbody></table></div></section>
+  </div>`;
+  if (ST.ai) loadWriteup();
+}
+
+function faSourceNote(d){
+  const s = d.fa;
+  if (!s) return 'No free-agent data yet. Run the bookmarklet on a CBS Free Agents page.';
+  if (s.type === 'seed') return 'Using the Oct 28 free-agent pool until someone runs the bookmarklet on a CBS Free Agents page. Anyone now on a roster is filtered out.';
+  return `Free agents from CBS, ${ago(s.at)} (${s.positions.join(', ')}). “proj” is CBS’s projection for this week; “avg” is season points per game. Sync from the Projections view for the best comparison.`;
+}
+
+function viewWaivers(d){
+  const v = $('view'); v.className = 'one';
+  const chips = ['ALL','QB','RB','WR','TE','K','DST'];
+  const src = faMode === 'adds' ? d.adds : d.allFa.slice().sort((a,b) => b.vor - a.vor);
+  const list = src.filter(p => posFilter === 'ALL' || p.pos === posFilter);
+  v.innerHTML = `<section class="card">
+    <h2><span>Waivers for ${esc(d.team.name)}</span><span class="muted" style="font-weight:400">${list.length} shown</span></h2>
+    <div class="tools">
+      <button class="chip ${faMode==='adds'?'on':''}" data-m="adds">Best adds for you</button>
+      <button class="chip ${faMode==='all'?'on':''}" data-m="all">All free agents</button>
+      <span style="width:12px"></span>
+      ${chips.map(c => `<button class="chip ${c===posFilter?'on':''}" data-p="${c}">${c}</button>`).join('')}
+    </div>
+    <div class="scroll"><table><thead><tr><th>Player</th><th>Pos</th><th>Tm</th><th class="num">Rost%</th><th class="num" title="This week’s CBS projection, or season points per game">Value</th><th class="num">Opp</th><th class="num" title="Value over a replacement-level starter">VOR</th>
+      ${faMode==='adds' ? '<th class="num">Gain</th><th>Drop</th>' : ''}<th></th></tr></thead><tbody>
+      ${list.map(p => `<tr><td><b>${esc(p.name)}</b>${p.byeNow ? '<span class="tag bad">Bye this week</span>' : ''}</td><td>${pos(p.pos)}</td><td>${esc(p.team)}</td>
+        <td class="num">${p.rost ?? '–'}%</td><td class="num">${p.proj != null ? `<b>${f1(p.proj)}</b> <span class="muted">proj</span>` : `${f1(p.avg)} <span class="muted">avg</span>`}</td><td class="num">${esc(p.opp || '–')}</td><td class="num">${f1(p.vor)}</td>
+        ${faMode==='adds' ? `<td class="num good"><b>+${f1(p.gain)}</b></td><td class="wrap">${p.drop ? esc(p.drop.name) + ` <span class="muted">(${esc(p.drop.pos)}, ${f1(p.drop.adj)})</span>` : '<span class="muted">Open roster spot</span>'}</td>` : ''}
+        <td>${plink(p, 'Add on CBS')}</td></tr>`).join('') || `<tr><td colspan="10" class="muted" style="padding:20px">${faMode==='adds' ? 'No free agent beats the worst player at that position on your roster.' : 'No free agents match.'}</td></tr>`}
+    </tbody></table></div>
+    <div class="pad muted" style="font-size:12px">${esc(faSourceNote(d))} Every add is paired with a drop; K and DST swap one for one. “Add on CBS” opens the player’s CBS page, where you confirm the add/drop yourself.</div>
+  </section>`;
+  v.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { posFilter = b.dataset.p; viewWaivers(d); });
+  v.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { faMode = b.dataset.m; viewWaivers(d); });
+}
+
+function viewMatchup(d){
+  const v = $('view'); v.className = 'one';
+  const o = d.opponent;
+  const side = (title, total, players, note) => `<section class="card"><h2><span>${esc(title)}</span><b>${f1(total)}</b></h2>
+    <div class="scroll"><table><tbody>${players.map(p => `<tr><td>${pos(p.pos)}</td><td>${playerCell(p)}</td><td>${gameCell(p)}</td><td class="num">${f1(p.adj)}</td></tr>`).join('')}</tbody></table></div>
+    ${note ? `<div class="pad muted" style="font-size:12px">${note}</div>` : ''}</section>`;
+  v.innerHTML = `<section class="card" style="margin-bottom:16px"><div class="tools" style="border:0">
+      <label class="muted" for="opp">Opponent this week</label>
+      <select id="opp"><option value="">${o && o.source==='auto' ? 'Auto: ' + esc(o.name) : 'Choose…'}</option>${d.teams.filter(t => t.id !== d.team.id).map(t => `<option value="${esc(t.id)}" ${o && o.source==='picked' && o.id===t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select>
+      ${o ? `<span class="pill">${o.underdog ? 'You’re the underdog: lean ceiling' : o.favorite ? 'You’re favored: floors are fine' : 'Toss-up'}</span>` : ''}
+    </div></section>
+    ${o ? `<div class="vs">${side(d.team.name + ' (optimal)', d.optimalTotal, d.lineup.map(s => s.player).filter(Boolean))}
+      ${side(o.name, o.total, o.lineup, o.usesCurrent ? 'Their lineup as currently set on CBS.' : 'Their best possible lineup; CBS didn’t show who they’ve set.')}</div>`
+      : `<section class="card"><div class="empty"><b>Pick your opponent</b>CBS’s data didn’t say who you play this week.</div></section>`}`;
+  $('opp').onchange = async e => { try { await api('/api/opponent', { opponentId: e.target.value || null }); D = null; view(); } catch (er) { toast(er.message, true); } };
+}
+
+async function viewLeague(){
+  const v = $('view'); v.className = 'one';
+  if (!tok && !adm) return needLogin('Log in to see league rosters.');
+  const L = await api('/api/league', null, 'any');
+  v.innerHTML = `<section class="card"><h2><span>League, week ${L.week ?? '?'}</span><span class="muted" style="font-weight:400">Tap a team to see its roster</span></h2>
+    <div class="scroll"><table><thead><tr><th>#</th><th>Team</th><th>Owner</th><th class="num">Optimal</th><th class="num">As set</th><th class="num">Left on bench</th></tr></thead><tbody id="lrows">
+    ${L.teams.map((t,i) => `<tr class="click" data-id="${esc(t.id)}"><td class="muted">${i+1}</td><td><b>${esc(t.name)}</b>${t.legal ? '' : '<span class="tag bad">Illegal roster</span>'}${who && who.id===t.id ? '<span class="tag">You</span>' : ''}</td><td class="muted">${esc(t.owner)}</td>
+      <td class="num"><b>${f1(t.optimalTotal)}</b></td><td class="num">${f1(t.currentTotal)}</td><td class="num ${t.gap>3?'warnc':''}">${t.gap==null?'–':f1(t.gap)}</td></tr>`).join('')}
+    </tbody></table></div><div class="pad muted" style="font-size:12px">Ranked by optimal projected points this week.</div></section>`;
+  v.querySelectorAll('tr.click').forEach(tr => tr.onclick = async () => {
+    const nx = tr.nextElementSibling;
+    if (nx && nx.classList.contains('sub')) { nx.remove(); return; }
+    try {
+      const t = await api('/api/team?id=' + encodeURIComponent(tr.dataset.id), null, 'any');
+      const optIds = new Set(t.slots.filter(s => s.player).map(s => s.player.id));
+      const row = document.createElement('tr'); row.className = 'sub';
+      row.innerHTML = `<td colspan="6"><table><tbody>${t.players.slice().sort((a,b) => (optIds.has(b.id)-optIds.has(a.id)) || b.adj-a.adj).map(p => `<tr><td style="width:60px">${pos(p.pos)}</td><td>${playerCell(p)}${p.starter ? '<span class="tag">Set to start</span>' : ''}${optIds.has(p.id) ? '<span class="tag" style="color:#86efac">Optimal</span>' : ''}</td><td>${gameCell(p)}</td><td class="num">${f1(p.adj)}</td></tr>`).join('')}</tbody></table></td>`;
+      tr.after(row);
+    } catch (e) { toast(e.message, true); }
+  });
+}
+
+async function viewConnect(){
+  const v = $('view'); v.className = 'one';
+  const src = await fetch('/bm-src.js', { cache: 'no-cache' }).then(r => r.text());
+  const href = 'javascript:' + encodeURIComponent(src.replace(/__APP__/g, location.origin));
+  v.innerHTML = `<section class="card"><h2>Connect CBS with the bookmarklet</h2>
+    <div class="pad">The bookmarklet runs inside your own logged-in CBS tab. It reads your league’s data, sends it here, and highlights the recommended changes on the CBS page. It never presses Submit, Add or Drop: you do that yourself on CBS. Your CBS password never leaves CBS.</div>
+    <div class="pad" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <a class="bm" id="bm" href="#">SSL Assistant</a>
+      <button class="btn ghost" id="copy">Copy bookmarklet code</button>
+      <span class="muted">Drag the button to your bookmarks bar.</span>
+    </div>
+    <div class="pad"><b>On a computer</b></div>
+    <ol class="steps">
+      <li>Drag the <b>SSL Assistant</b> button to your bookmarks bar.</li>
+      <li>On CBS, open your league’s <b>Live Scoring</b> page and click the bookmark. A small window opens here; log in with your PIN the first time.</li>
+      <li>For waivers, open <b>Players</b> on CBS, choose <b>Free Agents</b> and the <b>Projections</b> tab, and click the bookmark on <b>All Offense</b>, then on <b>K</b>, then on <b>DST</b>.</li>
+      <li>To set your lineup, open your lineup page on CBS and click the bookmark. Recommended changes get green START and red BENCH tags. Make them and press CBS’s Submit.</li>
+    </ol>
+    <div class="pad"><b>On an iPhone or iPad (Safari)</b></div>
+    <ol class="steps">
+      <li>Tap <b>Copy bookmarklet code</b> above.</li>
+      <li>Bookmark any page, then open Bookmarks, tap <b>Edit</b>, pick the new bookmark, rename it <code>SSL Assistant</code>, and paste the code over the address.</li>
+      <li>On CBS, tap the address bar, type <code>SSL</code>, and tap the bookmark from the suggestions.</li>
+    </ol>
+    <div class="pad muted" style="font-size:12px">One sync loads all ten teams, so whoever syncs last updates the data for everyone. Latest CBS data: ${ST.syncedAt ? `week ${ST.week ?? '?'}, ${ago(ST.syncedAt)}` : 'none yet'}.</div>
+  </section>`;
+  $('bm').setAttribute('href', href);
+  $('bm').onclick = e => { e.preventDefault(); toast('Drag this to your bookmarks bar, then click it on CBS.'); };
+  $('copy').onclick = async () => { try { await navigator.clipboard.writeText(href); toast('Copied. Paste it as a bookmark’s address.'); } catch(e){ prompt('Copy this bookmarklet code:', href); } };
+}
+
+async function viewCommish(){
+  const v = $('view'); v.className = 'one';
+  if (!adm) {
+    v.innerHTML = `<section class="card"><div class="empty"><b>Commissioner tools</b>Set and reset team PINs.<div style="margin-top:14px"><button class="btn" id="ul">Unlock</button></div></div></section>`;
+    $('ul').onclick = () => showLogin('admin'); return;
+  }
+  ST = await api('/api/status', null, 'any');
+  v.innerHTML = `<section class="card"><h2><span>Team PINs</span><button class="link" id="lock">lock</button></h2>
+    ${ST.teams.length ? `<div class="scroll"><table><thead><tr><th>Team</th><th>Owner</th><th>Status</th><th>New PIN</th><th></th></tr></thead><tbody>
+      ${ST.teams.map(t => `<tr><td><b>${esc(t.name)}</b></td><td class="muted">${esc(t.owner)}</td><td>${t.hasPin ? '<span class="good">PIN set</span>' : '<span class="warnc">No PIN</span>'}</td>
+        <td><input data-pin="${esc(t.id)}" inputmode="numeric" maxlength="8" placeholder="4–8 digits" style="width:120px"></td>
+        <td><button class="btn" data-save="${esc(t.id)}">Save PIN</button> ${t.hasPin ? `<button class="btn ghost" data-clear="${esc(t.id)}">Remove</button>` : ''}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="pad muted" style="font-size:12px">PINs are stored hashed, so you can’t look one up later; set a new one instead. Five wrong tries lock a team for 10 minutes. Send each owner the app link and their PIN privately.</div>`
+    : `<div class="empty"><b>Load the league first</b>Run the bookmarklet on CBS Live Scoring once (log in as commissioner in the window it opens). The ten teams appear here after that.</div>`}
+  </section>`;
+  try {
+    const u = await api('/api/admin/ai', null, 'admin');
+    v.insertAdjacentHTML('beforeend', `<section class="card" style="margin-top:16px"><h2><span>AI write-ups</span><span class="pill">${u.enabled ? 'On · ' + esc(u.model) : 'Off: no API key'}</span></h2>
+      <div class="pad">${u.month}: <b>${u.calls}</b> write-ups, about <b>$${(+u.cost).toFixed(2)}</b> of the <b>$${u.monthlyCap}</b> monthly cap. Each team can make ${u.dailyLimit} new write-ups a day; reopening the same one is free.</div>
+      ${u.byTeam.length ? `<div class="scroll"><table><tbody>${u.byTeam.map(t => `<tr><td>${esc(t.name)}</td><td class="num">${t.calls}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      <div class="pad muted" style="font-size:12px">This is the app’s own estimate. Your real bill is on the Claude Console.</div></section>`);
+  } catch (e) {}
+  $('lock').onclick = () => { adm = null; store.set('adm', null); view(); };
+  v.querySelectorAll('[data-save]').forEach(b => b.onclick = async () => {
+    const id = b.dataset.save, pin = v.querySelector(`[data-pin="${CSS.escape(id)}"]`).value.trim();
+    try { await api('/api/admin/pin', { teamId: id, pin }, 'admin'); toast('PIN saved'); viewCommish(); } catch(e){ toast(e.message, true); }
+  });
+  v.querySelectorAll('[data-clear]').forEach(b => b.onclick = async () => {
+    try { await api('/api/admin/pin', { teamId: b.dataset.clear, pin: null }, 'admin'); toast('PIN removed'); viewCommish(); } catch(e){ toast(e.message, true); }
+  });
+}
+
+async function load(){
+  ST = await api('/api/status', null, 'any');
+  if (tok && who && ST.teams.length && !ST.teams.some(t => t.id === who.id)) { /* team list changed */ }
+  if (who) { const t = ST.teams.find(x => x.id === who.id); if (t) who.name = t.name; }
+  D = null;
+  shell(); view();
+}
+
+window.addEventListener('hashchange', () => { const k = location.hash.slice(1); if (k && k !== tab && TABS.some(t => t[0] === k)) { tab = k; shell(); view(); } });
+if (BRIDGE) startBridge(); else load().then(() => { if (!tok && !adm && ST.teams.length) showLogin('team'); }).catch(e => { $('app').innerHTML = `<div class="empty"><b>Couldn’t reach the server</b>${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>
